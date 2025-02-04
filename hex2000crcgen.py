@@ -134,11 +134,12 @@ class HexParser:
             file.write("#endif\n")
 
 if __name__ == "__main__":
-    #if len(sys.argv) != 4:
-    #    print("Usage: python c2000_hex_parser.py <hexfile> <startaddress> <endaddress> <blocksize>")
-    #    print("Example: python c2000_hex_parser.py sample.hex 0x80000 0x80600 0x1A")
-    #    sys.exit(1) 
-    parser = HexParser("./sample.hex", 0x80000, 0x82000, 128)
+    if len(sys.argv) != 5:
+        print("Usage: python c2000_hex_parser.py <hexfile> <startaddress> <endaddress> <blocksize>")
+        print("Example: python c2000_hex_parser.py sample.hex 0x80000 0x80600 0x1A")
+        sys.exit(1) 
+    #parser = HexParser("./sample.hex", 0x80000, 0x82000, 128)
+    parser = HexParser(sys.argv[1], int(sys.argv[2], 16), int(sys.argv[3], 16), int(sys.argv[4]))
     parser.parse()   
     parser.calculate_crc32()
     #parser.show_summary()
