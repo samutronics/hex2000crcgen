@@ -3,8 +3,9 @@ import sys
 import math 
 
 class HexParser:
-    def __init__(self, filename, startaddress, endaddress, blocksize):
+    def __init__(self, filename, outputfilename, startaddress, endaddress, blocksize):
         self.filename = filename
+        self.outputfilename = outputfilename
         self.total_data_size = 0
         self.extended_address = 0
         self.start_address = startaddress
@@ -109,7 +110,7 @@ class HexParser:
     
     def create_header_file(self):
         #create a header file with the binary buffer data
-        with open('crc_golden1.h', 'w') as file:
+        with open(self.outputfilename, 'w') as file:
             file.write("#ifndef __HEX_DATA_H__\n")
             file.write("#define __HEX_DATA_H__\n\n")   
             file.write("#include <stdint.h>\n\n")         
@@ -133,12 +134,12 @@ class HexParser:
             file.write("#endif\n")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python c2000_hex_parser.py <hexfile> <startaddress> <endaddress> <blocksize>")
-        print("Example: python c2000_hex_parser.py sample.hex 0x80000 0x80600 0x1A")
+    if len(sys.argv) != 6:
+        print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <endaddress> <blocksize>")
+        print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 0x80600 0x1A")
         sys.exit(1) 
     #parser = HexParser("./sample.hex", 0x80000, 0x82000, 128)
-    parser = HexParser(sys.argv[1], int(sys.argv[2], 16), int(sys.argv[3], 16), int(sys.argv[4]))
+    parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4], 16), int(sys.argv[5]))
     parser.parse()   
     parser.calculate_crc32()    
     parser.create_header_file()
