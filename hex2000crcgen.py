@@ -123,21 +123,20 @@ class HexParser:
                 for j in range(0, 8):
                     if i+j >= len(self.crc_buffer):
                         #remove the last 2 characters
-                        file.seek(file.tell() - 2)   
                         break                    
                     file.write(f"0x{self.crc_buffer[i+j]:08X}U, ")                        
-                file.write("\n")                                        
-            file.write("};\n")
+
+            file.seek(file.tell() - 2) #remove the last comma                                             
+            file.write("\n};\n")
             file.write(f"// Total golden CRC flash usage: {self.numofblocks*4} bytes\n")
             file.write("#endif\n")
 
 if __name__ == "__main__":
-    #if len(sys.argv) != 6:
-    #    print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
-    #    print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
-    #    sys.exit(1) 
-    parser = HexParser("c:/Users/tomik/git/hex2000crcgen/hex2000crcgen/sample.hex", "crc.golden.h", 0x80000, 1200, 26)
-    #parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
+    if len(sys.argv) != 6:
+        print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
+        print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
+    #parser = HexParser("c:/Users/tomik/git/hex2000crcgen/hex2000crcgen/sample.hex", "crc.golden.h", 0x80000, 1200, 26)
+    parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
     parser.parse()   
     parser.calculate_crc32()    
     parser.create_header_file()
