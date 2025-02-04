@@ -1,6 +1,5 @@
 import array
 import sys
-import ctypes
 import math 
 
 class HexParser:
@@ -104,9 +103,9 @@ class HexParser:
         print(f"File: {self.filename}")
         print(f"Start address: 0x{self.start_address:08X}")
         print(f"End address: 0x{self.end_address:08x}")
-        # print the CRC values
-        for i in range(0, self.blocksize):
-            print(f"CRC{i}: {self.crc_buffer[i]:08X}")
+        print(f"Block size: {self.blocksize}")
+        print(f"Golden CRC flash usage: {(self.numofentries*4):d} bytes")
+
     
     def create_header_file(self):
         #create a header file with the binary buffer data
@@ -117,7 +116,7 @@ class HexParser:
             file.write(f"#define CRC_START_ADDRESS  0x{self.start_address:08X}\n")
             file.write(f"#define CRC_END_ADDRESS    0x{self.end_address:08X}\n")
             file.write(f"#define CRC_DATA_LENGHT    {self.blocksize}\n")
-            file.write(f"#define CRC_NUM_OF_ENTRIES {self.numofentries:d}\n\n")
+            file.write(f"#define CRC_NUM_OF_ENTRIES {(self.numofentries*4):d}\n\n")
             file.write(f"const uint32_t goldenCrc[] = \n"+"{\n")
                                                           
             for i in range(0, len(self.crc_buffer), 8):
@@ -141,7 +140,6 @@ if __name__ == "__main__":
     #parser = HexParser("./sample.hex", 0x80000, 0x82000, 128)
     parser = HexParser(sys.argv[1], int(sys.argv[2], 16), int(sys.argv[3], 16), int(sys.argv[4]))
     parser.parse()   
-    parser.calculate_crc32()
-    #parser.show_summary()
+    parser.calculate_crc32()    
     parser.create_header_file()
-    print("Done!")
+    parser.show_summary()
