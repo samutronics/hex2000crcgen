@@ -112,19 +112,35 @@ class HexParser:
         #create a header file with the binary buffer data
         with open('crc_golden1.h', 'w') as file:
             file.write("#ifndef __HEX_DATA_H__\n")
-            file.write("#define __HEX_DATA_H__\n")
-            file.write(f"const unsigned short hex_data[] = {{\n")
-            for i in range(0, len(self.binary_buffer), 8):
-                file.write(' '.join(f"0x{word:04X}," for word in self.binary_buffer[i:i + 8]) + '\n')
+            file.write("#define __HEX_DATA_H__\n\n")   
+            file.write("#include <stdint.h>\n\n")         
+            file.write(f"#define CRC_START_ADDRESS  0x{self.start_address:08X}\n")
+            file.write(f"#define CRC_END_ADDRESS    0x{self.end_address:08X}\n")
+            file.write(f"#define CRC_DATA_LENGHT    {self.blocksize}\n")
+            file.write(f"#define CRC_NUM_OF_ENTRIES {self.numofentries:d}\n\n")
+            file.write(f"const uint32_t goldenCrc[] = \n"+"{\n")
+                                                          
+            for i in range(0, len(self.crc_buffer), 8):
+                for j in range(0, 8):
+                    if i+j >= len(self.crc_buffer):
+                        #remove the last 2 characters
+                        file.seek(file.tell() - 2)                      
+                        break
+                    file.write(f"0x{self.crc_buffer[i+j]:08X}U, ")
+                file.write("\n")
+                
             file.write("};\n")
+            file.write(f"// Total golden CRC flash usage: {self.numofentries*4} bytes\n")
             file.write("#endif\n")
 
 if __name__ == "__main__":
-    #if len(sys.argv) != 2:
-    #    print("Usage: python c2000_hex_parser.py <hexfile>")
+    #if len(sys.argv) != 4:
+    #    print("Usage: python c2000_hex_parser.py <hexfile> <startaddress> <endaddress> <blocksize>")
+    #    print("Example: python c2000_hex_parser.py sample.hex 0x80000 0x80600 0x1A")
     #    sys.exit(1) 
-    parser = HexParser("./sample.hex", 0x80000, 0x80600, 0x1A)
+    parser = HexParser("./sample.hex", 0x80000, 0x82000, 128)
     parser.parse()   
     parser.calculate_crc32()
-    parser.show_summary()
+    #parser.show_summary()
     parser.create_header_file()
+    print("Done!")
