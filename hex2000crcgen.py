@@ -1,3 +1,13 @@
+# this script reads a hex file and generates a header file with the CRC32 values for each block of data
+# the CRC32 is calculated using the PRIME polynomial 0x04C11DB7
+# the CRC32 is calculated for each block of data
+# the CRC32 values are stored in an array of 32bit integers
+# it is intented to be used with the TI C2000 microcontroller
+# no warranty is provided with this script and it is provided as is
+# usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>
+# the input hex file must be generated using the following options in hex2000--fill=0xFFFF --memwidth=16 --romwidth=16 --diag_wrap=off --intel
+# example: CodeComposerStudio -> Properties -> Build -> Post-build steps -> Command: python c2000_hex_parser.py myProject.hex crc_golden.h 0x80000 100 16
+
 import array
 import sys
 import math 
@@ -17,7 +27,6 @@ class HexParser:
         # create a binary buffer for the CRC data; 
         self.crc_buffer = array.array('I', [0xFFFFFFFF] * (self.numofblocks))
         
-    
     def parse(self):        
         with open(self.filename, 'r') as file:           
             for line in file:
@@ -100,8 +109,7 @@ class HexParser:
         # expected result 0x363B4574
         data6 = [0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008]
         # expected result 0x9A24EB0E
-        data7 = [0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A]
-      
+        data7 = [0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A]   
         crc32 = self.crc32_calculate(data1) 
         print(f"\n\nCRC32: 0x{crc32:08X}")
         crc32 = self.crc32_calculate(data2)
@@ -116,8 +124,6 @@ class HexParser:
         print(f"CRC32: 0x{crc32:08X}")
         crc32 = self.crc32_calculate(data7)
         print(f"CRC32: 0x{crc32:08X}")
-
-
 
     def calculate_crc32(self):
         # calculate the CRC32 for each block of data
@@ -134,7 +140,6 @@ class HexParser:
         print(f"Block size: {self.blocksize}")
         print(f"Golden CRC flash usage: {(self.numofblocks*4):d} bytes")
 
-    
     def create_header_file(self):
         #create a header file with the binary buffer data
         with open(self.outputfilename, 'w') as file:
@@ -164,7 +169,6 @@ if __name__ == "__main__":
     if len(sys.argv) != 6:
         print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
         print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
-    #parser = HexParser("c:/Users/tomik/git/hex2000crcgen/hex2000crcgen/sample.hex", "crc.golden.h", 0x80000, 1200, 26)
     #parser.testcrc32()
     parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
     parser.parse()   
