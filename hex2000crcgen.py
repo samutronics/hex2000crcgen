@@ -86,21 +86,38 @@ class HexParser:
         return accumulator & 0xFFFFFFFF
 
     def testcrc32(self):
-        # 0x1A length of 0xFF data; CRC should be 0x202A22E4
-        data1 = [0xFFFF] * 0x1A
-        data2 = [0x0001 ,0x0002  ,0x0003  ,0x0004  ,0x0005  ,0x0006  ,0x0007  ,0x0008  ,0x0009  ,0x0010  ,0x0011  ,0x0012  ,0x0013  ,0x0014  ,0x0015  ,0x0016  ,0x0017  ,0x0018  ,0x0019  ,0x0020  ,0x0021  ,0x0022  ,0x0023  ,0x0024  ,0x0025  ,0x0026]                
         # https://downloads.ti.com/docs/esd/SPRU513/##viewer?document=%257B%2522href%2522%253A%2522%252Fdocs%252Fesd%252FSPRU513%2522%257D&url=reference-implementation-of-a-crc-calculation-function-ref-crc-c-spru5138320.html%23SPRU5138320
         # expected CRC_32_PRIME is 0x4BEAB53B
-        data3 = [0x0061, 0x0062, 0x0063, 0x0064]
-        crc32 = self.crc32_calculate(data1)
+        data1 = [0x0061, 0x0062, 0x0063, 0x0064]
+        # expected result 0x202A22E4
+        data2 = [0xFFFF] * 0x1A
+        # expected result 0x39220EDB
+        data3 = [ 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002]
+        # expected result 0xC06A3CD3
+        data4 = [0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004, 0x0003, 0x0004]
+        # expected result 0xEAC1F2EA
+        data5 = [0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006, 0x0005, 0x0006]
+        # expected result 0x363B4574
+        data6 = [0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008, 0x0007, 0x0008]
+        # expected result 0x9A24EB0E
+        data7 = [0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A, 0x0009, 0x000A]
+      
+        crc32 = self.crc32_calculate(data1) 
         print(f"\n\nCRC32: 0x{crc32:08X}")
         crc32 = self.crc32_calculate(data2)
         print(f"CRC32: 0x{crc32:08X}")
         crc32 = self.crc32_calculate(data3)
         print(f"CRC32: 0x{crc32:08X}")
+        crc32 = self.crc32_calculate(data4)
+        print(f"CRC32: 0x{crc32:08X}")
+        crc32 = self.crc32_calculate(data5)
+        print(f"CRC32: 0x{crc32:08X}")
+        crc32 = self.crc32_calculate(data6)
+        print(f"CRC32: 0x{crc32:08X}")
+        crc32 = self.crc32_calculate(data7)
+        print(f"CRC32: 0x{crc32:08X}")
 
-        #crc32 = self.crc32_calculate(data1)
-        #print(f"CRC32: {crc32:08X}")
+
 
     def calculate_crc32(self):
         # calculate the CRC32 for each block of data
@@ -144,13 +161,13 @@ class HexParser:
             file.write("#endif\n")
 
 if __name__ == "__main__":    
-    #if len(sys.argv) != 6:
-    #    print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
-    #    print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
-    parser = HexParser("c:/Users/tomik/git/hex2000crcgen/hex2000crcgen/sample.hex", "crc.golden.h", 0x80000, 1200, 26)
-    parser.testcrc32()
-    #parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
-    #parser.parse()   
-    #parser.calculate_crc32()    
-    #parser.create_header_file()
-    #parser.show_summary()
+    if len(sys.argv) != 6:
+        print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
+        print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
+    #parser = HexParser("c:/Users/tomik/git/hex2000crcgen/hex2000crcgen/sample.hex", "crc.golden.h", 0x80000, 1200, 26)
+    #parser.testcrc32()
+    parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
+    parser.parse()   
+    parser.calculate_crc32()    
+    parser.create_header_file()
+    parser.show_summary()
