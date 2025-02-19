@@ -133,12 +133,29 @@ class HexParser:
             data = self.binary_buffer[startindex:endindex]
             self.crc_buffer[i] = self.crc32_calculate(data)
 
+    # tryes to find the revision number of the git commit; if not found returns "unknown"
+    def git_revParse(self):
+        import subprocess
+        try:
+            git_rev = subprocess.check_output(['git', 'rev-parse','HEAD']).decode('utf-8').strip()
+            return git_rev
+        except:
+            return "unknown"
+
+    def git_printSummary(self):
+        print("Use the following command to show all the git commits needed for Annex-U")
+        print('git log --reverse --pretty=format:\"%H %cd\" --date=iso')
+        git_commit_hash = self.git_revParse()
+        print(f"this binary was generated using the following git commit hash: {git_commit_hash}\n")
+
+
     def show_summary(self):
         print(f"File: {self.filename}")
         print(f"Start address: 0x{self.start_address:08X}")
         print(f"End address: 0x{self.end_address:08x}")
         print(f"Block size: {self.blocksize}")
         print(f"Golden CRC flash usage: {(self.numofblocks*4):d} bytes")
+        self.git_printSummary()
 
     def create_header_file(self):
         #create a header file with the binary buffer data
@@ -162,13 +179,14 @@ class HexParser:
 
             file.seek(file.tell() - 2) #remove the last comma                                             
             file.write("\n};\n")
+            file.write(f"const uint16_t gitCommitHash[] = {{0x{int(self.git_revParse(), 16):08X}U}};\n")
             file.write(f"// Total golden CRC flash usage: {self.numofblocks*4} bytes\n")
             file.write("#endif\n")
 
 if __name__ == "__main__":    
     if len(sys.argv) != 6:
         print("Usage: python c2000_hex_parser.py <hexfile> <headerfile> <startaddress> <numberofblocks> <blocksize>")
-        print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")
+        print("Example: python c2000_hex_parser.py sample.hex crc_golden.h 0x80000 100 16")        
     #parser.testcrc32()
     parser = HexParser(sys.argv[1],sys.argv[2], int(sys.argv[3], 16), int(sys.argv[4]), int(sys.argv[5]))
     parser.parse()   
